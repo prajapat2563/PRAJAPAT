@@ -1,0 +1,63 @@
+{
+  "brand": {
+    "name": "PRAJAPAT",
+    "tagline": "VIDEO EDITOR / VISUAL STORYTELLER"
+  },
+  "hero": {
+    "title": "VIDEO EDITOR",
+    "subtitle": "VISUAL STORYTELLER",
+    "tagline": "I turn raw footage into cinematic stories built to hold attention, communicate clearly, and leave an impact.",
+    "metaRole": "VIDEO EDITOR / VFX",
+    "metaStatus": "AVAILABLE"
+  },
+  "work": {
+    "categories": [
+      {
+        "title": "LONG-FORM VIDEO",
+        "description": "Professional YouTube, educational, storytelling and content-driven editing."
+      },
+      {
+        "title": "SHORT-FORM VIDEO",
+        "description": "Reels, Shorts and social-focused fast-paced editing."
+      },
+      {
+        "title": "GFX DESIGN",
+        "description": "Motion graphics, titles, overlays and visual graphics."
+      },
+      {
+        "title": "DOCUMENTARY EDITING",
+        "description": "Story-driven documentary editing, pacing, structure and cinematic presentation."
+      }
+    ]
+  },
+  "experience": {
+    "stats": [
+      { "number": "7+", "label": "YEARS EDITING EXPERIENCE" },
+      { "number": "98%", "label": "CLIENT SATISFACTION" },
+      { "number": "150+", "label": "CLIENTS / PROJECTS" },
+      { "number": "50M+", "label": "REACH GENERATED" }
+    ]
+  },
+  "software": {
+    "items": [
+      { "name": "Adobe After Effects", "abbr": "Ae", "bgColor": "#00005B", "textColor": "#9999FF", "badge": "" },
+      { "name": "Adobe Premiere Pro", "abbr": "Pr", "bgColor": "#00005B", "textColor": "#9999FF", "badge": "" },
+      { "name": "Adobe Photoshop", "abbr": "Ps", "bgColor": "#001E36", "textColor": "#31A8FF", "badge": "" },
+      { "name": "Alight Motion", "abbr": "Am", "bgColor": "#1A1A2E", "textColor": "#E94560", "badge": "FOR MOBILE" }
+    ]
+  },
+  "social": {
+    "platforms": [
+      { "platform": "instagram", "name": "Instagram", "url": "#" },
+      { "platform": "youtube", "name": "YouTube Channel 01", "url": "#" },
+      { "platform": "youtube", "name": "YouTube Channel 02", "url": "#" },
+      { "platform": "telegram", "name": "Telegram", "url": "#" }
+    ]
+  },
+  "hire": {
+    "ctaPrimary": "START A PROJECT",
+    "ctaSecondary": "LET'S WORK TOGETHER",
+    "email": "",
+    "whatsapp": ""
+  }
+}

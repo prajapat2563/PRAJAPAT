@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="PRAJAPAT — Video Editor & Visual Storyteller. Premium cinematic portfolio.">
+  <meta name="theme-color" content="#E6E6E8">
+  <title>PRAJAPAT — Video Editor / Visual Storyteller</title>
+
+  <!-- Preload critical assets -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Inter+Tight:wght@300..800&display=swap">
+  <link rel="preload" href="assets/characters/hero.webp" as="image">
+  
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/site.css">
+
+  <!-- Favicon (simple inline SVG) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬡</text></svg>">
+</head>
+<body>
+  <!-- Skip to content for accessibility -->
+  <a href="#main-content" class="sr-only" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to main content</a>
+
+  <!-- Screen reader live region for section announcements -->
+  <div id="section-announcer" aria-live="polite" aria-atomic="true" class="sr-only" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- APP SHELL                               -->
+  <!-- ═══════════════════════════════════════ -->
+  <div id="app" role="main">
+
+    <!-- Thin border frame overlay -->
+    <div class="app-border" aria-hidden="true"></div>
+
+    <!-- ══════════════════════════════ -->
+    <!-- SECTION SLIDES (rendered by JS) -->
+    <!-- ══════════════════════════════ -->
+    <div id="sections-container"></div>
+
+    <header class="topbar" aria-hidden="true"><span class="topbar-brand"><i></i>PRAJAPAT</span><span class="topbar-menu"><b></b><b></b></span></header>
+    <div class="scroll-hint" aria-hidden="true">SCROLL</div>
+
+    <!-- ══════════════════════════════ -->
+    <!-- NAVIGATION UI                  -->
+    <!-- ══════════════════════════════ -->
+    <nav class="nav-ui" aria-label="Section navigation">
+
+      <!-- Arrow buttons (bottom-left) -->
+      <div class="nav-arrows" role="group" aria-label="Navigate sections">
+        <button class="nav-arrow-btn nav-arrow-prev" aria-label="Previous section" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="nav-arrow-btn nav-arrow-next" aria-label="Next section">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 6 15 12 9 18"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Section counter (bottom-right) -->
+      <div class="nav-counter" aria-label="Section indicator">
+        <span class="current" aria-current="true">01</span>
+        <span class="divider">/</span>
+        <span class="total">06</span>
+      </div>
+
+      <!-- Dot navigation (right side) -->
+      <div class="nav-dots" role="tablist" aria-label="Section dots">
+        <button class="nav-dot active" data-index="0" role="tab" aria-selected="true" aria-label="Go to Hero section"></button>
+        <button class="nav-dot" data-index="1" role="tab" aria-selected="false" aria-label="Go to My Work section"></button>
+        <button class="nav-dot" data-index="2" role="tab" aria-selected="false" aria-label="Go to Experience section"></button>
+        <button class="nav-dot" data-index="3" role="tab" aria-selected="false" aria-label="Go to Software section"></button>
+        <button class="nav-dot" data-index="4" role="tab" aria-selected="false" aria-label="Go to Social Media section"></button>
+        <button class="nav-dot" data-index="5" role="tab" aria-selected="false" aria-label="Go to Hire Me section"></button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/app.js"></script>
+  <script src="js/fx.js"></script>
+</body>
+</html>
