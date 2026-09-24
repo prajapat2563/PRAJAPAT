@@ -64,5 +64,16 @@
     // the name opens admin — no visual hint for visitors
     const b = q('.topbar-brand'); b.style.pointerEvents = 'auto'; b.onclick = () => (location.href = 'admin.html');
   }
-  document.addEventListener('DOMContentLoaded', site);
+  async function syncFromCloud() {
+    if (!window.CMS_DOC) return; // firebase-init.js didn't load (e.g. offline on first paint)
+    try {
+      const snap = await CMS_DOC().get();
+      if (snap.exists) {
+        localStorage.setItem(KEY, JSON.stringify(snap.data()));
+        site(); // re-render with the freshest cloud data
+      }
+    } catch (e) { /* offline / blocked — keep showing the local cache */ }
+  }
+  window.CMS.syncFromCloud = syncFromCloud;
+  document.addEventListener('DOMContentLoaded', () => { site(); syncFromCloud(); });
 })();

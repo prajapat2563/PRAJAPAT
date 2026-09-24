@@ -3,19 +3,35 @@
   let data = load(), tab = 'hero';
   const hash = async (p, salt) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + p)))].map(b => b.toString(16).padStart(2, '0')).join('');
   let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1600); };
-  const save = () => { localStorage.setItem(KEY, JSON.stringify(data)); toast('Saved'); };
+  // cloud writes are debounced so fast typing/reordering doesn't spam Firestore with a write per keystroke
+  let cloudTimer; const cloudSave = () => {
+    if (!window.CMS_DOC) return;
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(() => { CMS_DOC().set(data).catch(() => toast('Cloud sync failed — check connection')); }, 700);
+  };
+  const save = () => { localStorage.setItem(KEY, JSON.stringify(data)); toast('Saved'); cloudSave(); };
 
-  // ── access: password is never in source; only a salted hash is stored (first visit sets it) ──
-  const stored = () => JSON.parse(localStorage.getItem(PW) || 'null');
-  if (!stored()) $('#msg').textContent = 'First visit: choose a password (min 8 characters).';
-  const enter = () => { sessionStorage.setItem('pj_ok', '1'); $('#login').style.display = 'none'; $('#app').style.display = 'grid'; nav(); show(); };
+  // ── access: default admin password is fixed below (as a salted hash, not plaintext). ──
+  // Changing the password in General Settings stores a new hash in localStorage, which then
+  // overrides this default — so admin.js never needs to be re-edited after that point.
+  const DEFAULT_PW = { salt: 'ddc450dcad0b80d63bb726070e80837b', h: 'a952c72eeb227dc5a2319e4437124ec2871b76474f06907c220c5c5e85fc90a9' };
+  const stored = () => JSON.parse(localStorage.getItem(PW) || 'null') || DEFAULT_PW;
+  const enter = async () => {
+    sessionStorage.setItem('pj_ok', '1'); $('#login').style.display = 'none'; $('#app').style.display = 'grid';
+    if (window.CMS_DOC) {
+      try {
+        const snap = await CMS_DOC().get();
+        if (snap.exists) { data = { ...structuredClone(D), ...snap.data() }; localStorage.setItem(KEY, JSON.stringify(data)); }
+      } catch (e) { toast('Offline — showing last saved copy'); }
+    }
+    nav(); show();
+  };
   $('#go').onclick = async () => {
     const p = $('#pw').value, s = stored();
-    if (!s) { if (p.length < 8) return ($('#msg').textContent = 'Use at least 8 characters.'); const salt = crypto.randomUUID(); localStorage.setItem(PW, JSON.stringify({ salt, h: await hash(p, salt) })); return enter(); }
     (await hash(p, s.salt)) === s.h ? enter() : ($('#msg').textContent = 'Incorrect password.');
   };
   $('#pw').onkeydown = e => e.key === 'Enter' && $('#go').click();
-  if (sessionStorage.getItem('pj_ok') && stored()) enter();
+  if (sessionStorage.getItem('pj_ok')) enter();
 
   // ── ui helpers ──
   const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
@@ -54,7 +70,7 @@
       [['Instagram', 'instagram'], ['YouTube', 'youtube'], ['Telegram', 'telegram'], ['TikTok', 'tiktok'], ['X', 'x']].map(([n, ic]) => ['+ ' + n, { n, url: '', ic, logo: '' }]).concat([['+ Custom platform', { n: '', url: '', ic: 'link', logo: '' }]]))]],
     hire: () => ['Hire Me', 'Contact details and what the buttons do.', [inp('Email', data.hire, 'email'), inp('WhatsApp Business number', data.hire, 'waNum'), inp('WhatsApp chat link (optional — overrides number)', data.hire, 'waLink'), inp('Start-a-project button label', data.hire, 'cta'), inp('Secondary label', data.hire, 'cta2'), inp('Start-a-project opens', data.hire, 'action', { opts: [['whatsapp', 'WhatsApp'], ['email', 'Email']] })]],
     media: () => ['Center Media', 'Image or video per section.', []],
-    gen: () => ['General Settings', 'Password and reset.', [(() => { const d = el('div'), pw = el('label', 'f', '<span>New password (min 8)</span><input type="password">'); d.append(pw, btn('Change password', async () => { const v = pw.querySelector('input').value; if (v.length < 8) return toast('Too short'); const salt = crypto.randomUUID(); localStorage.setItem(PW, JSON.stringify({ salt, h: await hash(v, salt) })); pw.querySelector('input').value = ''; toast('Password changed'); }, 'add'), btn('Reset all text content to defaults', () => { if (confirm('Reset all content?')) { localStorage.removeItem(KEY); data = load(); show(); } }, 'add')); return d; })()]]
+    gen: () => ['General Settings', 'Password and reset.', [(() => { const d = el('div'), pw = el('label', 'f', '<span>New password (min 8)</span><input type="password">'); d.append(pw, btn('Change password', async () => { const v = pw.querySelector('input').value; if (v.length < 8) return toast('Too short'); const salt = crypto.randomUUID(); localStorage.setItem(PW, JSON.stringify({ salt, h: await hash(v, salt) })); pw.querySelector('input').value = ''; toast('Password changed'); }, 'add'), btn('Reset all text content to defaults', () => { if (confirm('Reset all content?')) { localStorage.removeItem(KEY); data = load(); show(); if (window.CMS_DOC) CMS_DOC().delete().catch(() => {}); } }, 'add')); return d; })()]]
   };
   const names = { hero: 'Hero', work: 'My Work', exp: 'Experience', sw: 'Software I Use', soc: 'Social Media', hire: 'Hire Me', media: 'Center Media', gen: 'General Settings' };
   function nav() { const n = $('#tabs'); n.innerHTML = '<b>PRAJAPAT</b>'; Object.keys(names).forEach(k => { const b = btn(names[k], () => { tab = k; nav(); show(); }); b.className = k === tab ? 'on' : ''; n.append(b); }); n.append(btn('Log out', () => { sessionStorage.removeItem('pj_ok'); location.reload(); }, 'out')); }
