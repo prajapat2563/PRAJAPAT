@@ -1,485 +1,65 @@
-/**
- * PRAJAPAT Portfolio — Admin CMS Panel
- * Manages portfolio content via localStorage
- */
+(() => {
+  const { KEY, D, load, IC } = CMS, $ = s => document.querySelector(s), PW = 'prajapat_admin_pw2';
+  let data = load(), tab = 'hero';
+  const hash = async (p, salt) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + p)))].map(b => b.toString(16).padStart(2, '0')).join('');
+  let tt; const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 1600); };
+  const save = () => { localStorage.setItem(KEY, JSON.stringify(data)); toast('Saved'); };
 
-(function() {
-  'use strict';
+  // ── access: password is never in source; only a salted hash is stored (first visit sets it) ──
+  const stored = () => JSON.parse(localStorage.getItem(PW) || 'null');
+  if (!stored()) $('#msg').textContent = 'First visit: choose a password (min 8 characters).';
+  const enter = () => { sessionStorage.setItem('pj_ok', '1'); $('#login').style.display = 'none'; $('#app').style.display = 'grid'; nav(); show(); };
+  $('#go').onclick = async () => {
+    const p = $('#pw').value, s = stored();
+    if (!s) { if (p.length < 8) return ($('#msg').textContent = 'Use at least 8 characters.'); const salt = crypto.randomUUID(); localStorage.setItem(PW, JSON.stringify({ salt, h: await hash(p, salt) })); return enter(); }
+    (await hash(p, s.salt)) === s.h ? enter() : ($('#msg').textContent = 'Incorrect password.');
+  };
+  $('#pw').onkeydown = e => e.key === 'Enter' && $('#go').click();
+  if (sessionStorage.getItem('pj_ok') && stored()) enter();
 
-  const STORAGE_KEY = 'prajapat_cms_data';
-  const PIN_HASH_KEY = 'prajapat_admin_pin_hash';
-  const DEFAULTS_URL = 'data/defaults.json';
-
-  // ═══════════════════════════════════════
-  // Simple hash function (SHA-256 via SubtleCrypto)
-  // ═══════════════════════════════════════
-  async function hashPin(pin) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(pin);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-
-  // ═══════════════════════════════════════
-  // Toast notifications
-  // ═══════════════════════════════════════
-  function showToast(message) {
-    const toast = document.getElementById('admin-toast');
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
-
-  // ═══════════════════════════════════════
-  // Authentication
-  // ═══════════════════════════════════════
-  const loginScreen = document.getElementById('admin-login');
-  const dashboard = document.getElementById('admin-dashboard');
-  const pinInput = document.getElementById('pin-input');
-  const pinSubmit = document.getElementById('pin-submit');
-  const pinError = document.getElementById('pin-error');
-  const pinSetup = document.getElementById('pin-setup');
-
-  // Check if PIN exists
-  const existingHash = localStorage.getItem(PIN_HASH_KEY);
-  if (!existingHash) {
-    pinSetup.textContent = 'First time? Enter a new PIN to set up admin access.';
-    pinSetup.style.display = 'block';
-  }
-
-  pinSubmit.addEventListener('click', handlePinSubmit);
-  pinInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handlePinSubmit();
-  });
-
-  async function handlePinSubmit() {
-    const pin = pinInput.value.trim();
-    if (!pin || pin.length < 4) {
-      pinError.textContent = 'PIN must be at least 4 characters';
-      pinError.style.display = 'block';
-      return;
-    }
-
-    const hash = await hashPin(pin);
-
-    if (!existingHash) {
-      // First time — set PIN
-      localStorage.setItem(PIN_HASH_KEY, hash);
-      showLogin(false);
-      showToast('PIN created successfully');
-    } else if (hash === existingHash) {
-      // Correct PIN
-      showLogin(false);
-    } else {
-      // Wrong PIN
-      pinError.textContent = 'Incorrect PIN';
-      pinError.style.display = 'block';
-      pinInput.value = '';
-      pinInput.focus();
-    }
-  }
-
-  function showLogin(show) {
-    loginScreen.style.display = show ? 'block' : 'none';
-    dashboard.style.display = show ? 'none' : 'block';
-    if (!show) loadAdminData();
-  }
-
-  // Logout
-  document.getElementById('admin-logout').addEventListener('click', () => {
-    showLogin(true);
-    pinInput.value = '';
-    pinError.style.display = 'none';
-  });
-
-  // ═══════════════════════════════════════
-  // Data management
-  // ═══════════════════════════════════════
-  let cmsData = null;
-
-  async function loadDefaults() {
-    try {
-      const resp = await fetch(DEFAULTS_URL);
-      return await resp.json();
-    } catch (e) {
-      console.warn('Could not load defaults.json, using hardcoded fallback');
-      return getHardcodedDefaults();
-    }
-  }
-
-  function getHardcodedDefaults() {
-    return {
-      brand: { name: 'PRAJAPAT', tagline: 'VIDEO EDITOR / VISUAL STORYTELLER' },
-      hero: { title: 'VIDEO EDITOR', subtitle: 'VISUAL STORYTELLER', tagline: 'I turn raw footage into cinematic stories built to hold attention, communicate clearly, and leave an impact.', metaRole: 'VIDEO EDITOR / VFX', metaStatus: 'AVAILABLE' },
-      work: { categories: [
-        { title: 'LONG-FORM VIDEO', description: 'Professional YouTube, educational, storytelling and content-driven editing.' },
-        { title: 'SHORT-FORM VIDEO', description: 'Reels, Shorts and social-focused fast-paced editing.' },
-        { title: 'GFX DESIGN', description: 'Motion graphics, titles, overlays and visual graphics.' },
-        { title: 'DOCUMENTARY EDITING', description: 'Story-driven documentary editing, pacing, structure and cinematic presentation.' }
-      ]},
-      experience: { stats: [
-        { number: '7+', label: 'YEARS EDITING EXPERIENCE' },
-        { number: '98%', label: 'CLIENT SATISFACTION' },
-        { number: '150+', label: 'CLIENTS / PROJECTS' },
-        { number: '50M+', label: 'REACH GENERATED' }
-      ]},
-      software: { items: [
-        { name: 'Adobe After Effects', abbr: 'Ae', bgColor: '#00005B', textColor: '#9999FF', badge: '' },
-        { name: 'Adobe Premiere Pro', abbr: 'Pr', bgColor: '#00005B', textColor: '#9999FF', badge: '' },
-        { name: 'Adobe Photoshop', abbr: 'Ps', bgColor: '#001E36', textColor: '#31A8FF', badge: '' },
-        { name: 'Alight Motion', abbr: 'Am', bgColor: '#1A1A2E', textColor: '#E94560', badge: 'FOR MOBILE' }
-      ]},
-      social: { platforms: [
-        { platform: 'instagram', name: 'Instagram', url: '#' },
-        { platform: 'youtube', name: 'YouTube Channel 01', url: '#' },
-        { platform: 'youtube', name: 'YouTube Channel 02', url: '#' },
-        { platform: 'telegram', name: 'Telegram', url: '#' }
-      ]},
-      hire: { ctaPrimary: 'START A PROJECT', ctaSecondary: "LET'S WORK TOGETHER", email: '', whatsapp: '' }
-    };
-  }
-
-  async function loadAdminData() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        cmsData = JSON.parse(stored);
-      } catch (e) {
-        cmsData = await loadDefaults();
-      }
-    } else {
-      cmsData = await loadDefaults();
-    }
-    populateFields();
-  }
-
-  // ═══════════════════════════════════════
-  // Populate form fields from data
-  // ═══════════════════════════════════════
-  function populateFields() {
-    if (!cmsData) return;
-
-    // Brand
-    setVal('brand-name', cmsData.brand?.name);
-    setVal('brand-tagline', cmsData.brand?.tagline);
-
-    // Hero
-    setVal('hero-title', cmsData.hero?.title);
-    setVal('hero-subtitle', cmsData.hero?.subtitle);
-    setVal('hero-tagline', cmsData.hero?.tagline);
-    setVal('hero-meta-role', cmsData.hero?.metaRole);
-    setVal('hero-meta-status', cmsData.hero?.metaStatus);
-
-    // Work categories
-    renderWorkCategories();
-
-    // Experience stats
-    renderExperienceStats();
-
-    // Software
-    renderSoftware();
-
-    // Social
-    renderSocial();
-
-    // Hire
-    setVal('hire-cta-primary', cmsData.hire?.ctaPrimary);
-    setVal('hire-cta-secondary', cmsData.hire?.ctaSecondary);
-    setVal('hire-email', cmsData.hire?.email);
-    setVal('hire-whatsapp', cmsData.hire?.whatsapp);
-  }
-
-  function setVal(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.value = value || '';
-  }
-
-  // ═══════════════════════════════════════
-  // Dynamic field renderers
-  // ═══════════════════════════════════════
-
-  function renderWorkCategories() {
-    const container = document.getElementById('work-categories-container');
-    container.innerHTML = '';
-    const cats = cmsData.work?.categories || [];
-    cats.forEach((cat, i) => {
-      container.appendChild(createFieldGroup(`work-cat-${i}`, [
-        { label: `Category ${i + 1} — Title`, id: `work-cat-title-${i}`, value: cat.title, type: 'text' },
-        { label: `Category ${i + 1} — Description`, id: `work-cat-desc-${i}`, value: cat.description, type: 'textarea' }
-      ], () => {
-        cmsData.work.categories.splice(i, 1);
-        renderWorkCategories();
-      }));
-    });
-  }
-
-  function renderExperienceStats() {
-    const container = document.getElementById('experience-stats-container');
-    container.innerHTML = '';
-    const stats = cmsData.experience?.stats || [];
-    stats.forEach((stat, i) => {
-      container.appendChild(createFieldGroup(`exp-stat-${i}`, [
-        { label: `Stat ${i + 1} — Number`, id: `exp-stat-num-${i}`, value: stat.number, type: 'text' },
-        { label: `Stat ${i + 1} — Label`, id: `exp-stat-label-${i}`, value: stat.label, type: 'text' }
-      ]));
-    });
-  }
-
-  function renderSoftware() {
-    const container = document.getElementById('software-container');
-    container.innerHTML = '';
-    const items = cmsData.software?.items || [];
-    items.forEach((item, i) => {
-      container.appendChild(createFieldGroup(`sw-${i}`, [
-        { label: `Software ${i + 1} — Name`, id: `sw-name-${i}`, value: item.name, type: 'text' },
-        { label: `Abbreviation`, id: `sw-abbr-${i}`, value: item.abbr, type: 'text' },
-        { label: `Badge (e.g. FOR MOBILE)`, id: `sw-badge-${i}`, value: item.badge, type: 'text' }
-      ], () => {
-        cmsData.software.items.splice(i, 1);
-        renderSoftware();
-      }));
-    });
-  }
-
-  function renderSocial() {
-    const container = document.getElementById('social-container');
-    container.innerHTML = '';
-    const platforms = cmsData.social?.platforms || [];
-    const platformOptions = ['instagram', 'youtube', 'telegram', 'payhip', 'facebook', 'x', 'linkedin', 'tiktok', 'discord', 'behance', 'dribbble', 'github', 'custom'];
-
-    platforms.forEach((plat, i) => {
-      const group = document.createElement('div');
-      group.style.cssText = 'padding:16px;border:1px solid rgba(0,0,0,0.1);margin-bottom:12px;position:relative;';
-
-      // Platform select
-      const selectField = document.createElement('div');
-      selectField.className = 'admin-field';
-      const selectLabel = document.createElement('label');
-      selectLabel.textContent = `Platform ${i + 1} — Type`;
-      selectLabel.setAttribute('for', `social-platform-${i}`);
-      const select = document.createElement('select');
-      select.id = `social-platform-${i}`;
-      platformOptions.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt;
-        option.textContent = opt.charAt(0).toUpperCase() + opt.slice(1);
-        if (opt === plat.platform) option.selected = true;
-        select.appendChild(option);
+  // ── ui helpers ──
+  const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
+  const btn = (t, f, c) => { const b = el('button', c, t); b.onclick = f; return b; };
+  const inp = (lab, obj, k, o = {}) => {
+    const l = el('label', 'f', `<span>${lab}</span>`), e = o.opts ? el('select') : el(o.ta ? 'textarea' : 'input');
+    if (o.opts) o.opts.forEach(([v, t]) => e.append(new Option(t, v)));
+    e.value = obj[k] || ''; e.oninput = () => { obj[k] = e.value; save(); }; l.append(e); return l;
+  };
+  const logoData = f => new Promise((ok, no) => { const i = new Image(), u = URL.createObjectURL(f); i.onload = () => { const s = Math.min(1, 192 / Math.max(i.width, i.height)), c = el('canvas'); c.width = i.width * s; c.height = i.height * s; c.getContext('2d').drawImage(i, 0, 0, c.width, c.height); URL.revokeObjectURL(u); ok(c.toDataURL('image/png')); }; i.onerror = () => no(); i.src = u; });
+  function list(arr, fields, blank, logo, extra) {
+    const box = el('div'), draw = () => {
+      box.innerHTML = '';
+      arr.forEach((it, i) => {
+        const r = el('div', 'row'); fields.forEach(([k, lab, ta]) => r.append(inp(lab, it, k, { ta })));
+        if (logo) {
+          const lg = el('div', 'logo', it.logo ? `<img src="${it.logo}" alt="">` : '<i></i>');
+          lg.append(btn(it.logo ? 'Replace logo' : 'Upload logo', () => { const f = el('input'); f.type = 'file'; f.accept = 'image/png,image/jpeg,image/webp,image/svg+xml'; f.onchange = async () => { try { it.logo = await logoData(f.files[0]); save(); draw(); } catch (e) { toast('Could not read image'); } }; f.click(); }));
+          if (it.logo) lg.append(btn('Remove logo', () => { it.logo = ''; save(); draw(); }));
+          r.append(lg);
+        }
+        const c = el('div', 'ctl');
+        c.append(btn('↑', () => { if (i) arr.splice(i - 1, 0, ...arr.splice(i, 1)); save(); draw(); }), btn('↓', () => { if (i < arr.length - 1) arr.splice(i + 1, 0, ...arr.splice(i, 1)); save(); draw(); }), btn('Delete', () => { arr.splice(i, 1); save(); draw(); }));
+        r.append(c); box.append(r);
       });
-      selectField.appendChild(selectLabel);
-      selectField.appendChild(select);
-      group.appendChild(selectField);
-
-      // Name
-      const nameField = createField(`social-name-${i}`, `Platform ${i + 1} — Display Name`, plat.name, 'text');
-      group.appendChild(nameField);
-
-      // URL
-      const urlField = createField(`social-url-${i}`, `Platform ${i + 1} — URL`, plat.url, 'text');
-      group.appendChild(urlField);
-
-      // Remove button
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = '✕ REMOVE';
-      removeBtn.style.cssText = 'position:absolute;top:12px;right:12px;background:none;border:none;color:#999;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;';
-      removeBtn.addEventListener('click', () => {
-        cmsData.social.platforms.splice(i, 1);
-        renderSocial();
-      });
-      group.appendChild(removeBtn);
-
-      container.appendChild(group);
-    });
+      const p = el('div', 'presets'); (extra || [['+ Add', blank]]).forEach(([t, b]) => p.append(btn(t, () => { arr.push({ ...b }); save(); draw(); }))); box.append(p);
+    }; draw(); return box;
   }
 
-  // ═══════════════════════════════════════
-  // Field helpers
-  // ═══════════════════════════════════════
-  function createField(id, labelText, value, type) {
-    const div = document.createElement('div');
-    div.className = 'admin-field';
-    const label = document.createElement('label');
-    label.textContent = labelText;
-    label.setAttribute('for', id);
-    div.appendChild(label);
-
-    if (type === 'textarea') {
-      const textarea = document.createElement('textarea');
-      textarea.id = id;
-      textarea.value = value || '';
-      div.appendChild(textarea);
-    } else {
-      const input = document.createElement('input');
-      input.type = type || 'text';
-      input.id = id;
-      input.value = value || '';
-      div.appendChild(input);
-    }
-    return div;
+  const P = {
+    hero: () => ['Hero', 'Headline, subtitle, description and status.', [inp('Title (line breaks at spaces)', data.hero, 'title'), inp('Subtitle', data.hero, 'sub'), inp('Description', data.hero, 'tag', { ta: 1 }), inp('Role', data.hero, 'role'), inp('Status', data.hero, 'status')]],
+    work: () => ['My Work', 'Categories shown around the character. Split evenly left/right.', [list(data.work, [['t', 'Category name'], ['d', 'Description', 1]], { t: '', d: '' })]],
+    exp: () => ['Experience', 'Numbers and labels. Add, edit, delete, reorder.', [list(data.exp, [['n', 'Number / years'], ['l', 'Label / role / description']], { n: '', l: '' })]],
+    sw: () => ['Software I Use', 'Name, logo (or letter tile), badge.', [list(data.sw, [['n', 'Name'], ['ab', 'Letters (if no logo)'], ['badge', 'Badge text']], { n: '', ab: '', bg: '#1A1A2E', fg: '#FFFFFF', badge: '', logo: '' }, true)]],
+    soc: () => ['Social Media', 'Any platform, any link, any logo.', [list(data.soc, [['n', 'Platform name'], ['url', 'Link (https://…, mailto:, tel:)']], { n: '', url: '', ic: 'link', logo: '' }, true,
+      [['Instagram', 'instagram'], ['YouTube', 'youtube'], ['Telegram', 'telegram'], ['TikTok', 'tiktok'], ['X', 'x']].map(([n, ic]) => ['+ ' + n, { n, url: '', ic, logo: '' }]).concat([['+ Custom platform', { n: '', url: '', ic: 'link', logo: '' }]]))]],
+    hire: () => ['Hire Me', 'Contact details and what the buttons do.', [inp('Email', data.hire, 'email'), inp('WhatsApp Business number', data.hire, 'waNum'), inp('WhatsApp chat link (optional — overrides number)', data.hire, 'waLink'), inp('Start-a-project button label', data.hire, 'cta'), inp('Secondary label', data.hire, 'cta2'), inp('Start-a-project opens', data.hire, 'action', { opts: [['whatsapp', 'WhatsApp'], ['email', 'Email']] })]],
+    media: () => ['Center Media', 'Image or video per section.', []],
+    gen: () => ['General Settings', 'Password and reset.', [(() => { const d = el('div'), pw = el('label', 'f', '<span>New password (min 8)</span><input type="password">'); d.append(pw, btn('Change password', async () => { const v = pw.querySelector('input').value; if (v.length < 8) return toast('Too short'); const salt = crypto.randomUUID(); localStorage.setItem(PW, JSON.stringify({ salt, h: await hash(v, salt) })); pw.querySelector('input').value = ''; toast('Password changed'); }, 'add'), btn('Reset all text content to defaults', () => { if (confirm('Reset all content?')) { localStorage.removeItem(KEY); data = load(); show(); } }, 'add')); return d; })()]]
+  };
+  const names = { hero: 'Hero', work: 'My Work', exp: 'Experience', sw: 'Software I Use', soc: 'Social Media', hire: 'Hire Me', media: 'Center Media', gen: 'General Settings' };
+  function nav() { const n = $('#tabs'); n.innerHTML = '<b>PRAJAPAT</b>'; Object.keys(names).forEach(k => { const b = btn(names[k], () => { tab = k; nav(); show(); }); b.className = k === tab ? 'on' : ''; n.append(b); }); n.append(btn('Log out', () => { sessionStorage.removeItem('pj_ok'); location.reload(); }, 'out')); }
+  function show() {
+    const [h, s, kids] = P[tab](), p = $('#panel'); p.innerHTML = `<h2>${h}</h2><p class="sub">${s}</p>`; kids.forEach(k => p.append(k));
+    $('#media-admin').hidden = tab !== 'media';
   }
-
-  function createFieldGroup(prefix, fields, onRemove) {
-    const group = document.createElement('div');
-    group.style.cssText = 'padding:16px;border:1px solid rgba(0,0,0,0.1);margin-bottom:12px;position:relative;';
-
-    fields.forEach(f => {
-      group.appendChild(createField(f.id, f.label, f.value, f.type));
-    });
-
-    if (onRemove) {
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = '✕ REMOVE';
-      removeBtn.style.cssText = 'position:absolute;top:12px;right:12px;background:none;border:none;color:#999;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;';
-      removeBtn.addEventListener('click', onRemove);
-      group.appendChild(removeBtn);
-    }
-
-    return group;
-  }
-
-  // ═══════════════════════════════════════
-  // Collect form data
-  // ═══════════════════════════════════════
-  function collectData() {
-    const data = {
-      brand: {
-        name: sanitize(getVal('brand-name')),
-        tagline: sanitize(getVal('brand-tagline'))
-      },
-      hero: {
-        title: sanitize(getVal('hero-title')),
-        subtitle: sanitize(getVal('hero-subtitle')),
-        tagline: sanitize(getVal('hero-tagline')),
-        metaRole: sanitize(getVal('hero-meta-role')),
-        metaStatus: sanitize(getVal('hero-meta-status'))
-      },
-      work: { categories: [] },
-      experience: { stats: [] },
-      software: { items: [] },
-      social: { platforms: [] },
-      hire: {
-        ctaPrimary: sanitize(getVal('hire-cta-primary')),
-        ctaSecondary: sanitize(getVal('hire-cta-secondary')),
-        email: sanitize(getVal('hire-email')),
-        whatsapp: sanitize(getVal('hire-whatsapp'))
-      }
-    };
-
-    // Work categories
-    let i = 0;
-    while (document.getElementById(`work-cat-title-${i}`)) {
-      data.work.categories.push({
-        title: sanitize(getVal(`work-cat-title-${i}`)),
-        description: sanitize(getVal(`work-cat-desc-${i}`))
-      });
-      i++;
-    }
-
-    // Experience stats
-    i = 0;
-    while (document.getElementById(`exp-stat-num-${i}`)) {
-      data.experience.stats.push({
-        number: sanitize(getVal(`exp-stat-num-${i}`)),
-        label: sanitize(getVal(`exp-stat-label-${i}`))
-      });
-      i++;
-    }
-
-    // Software
-    i = 0;
-    while (document.getElementById(`sw-name-${i}`)) {
-      data.software.items.push({
-        name: sanitize(getVal(`sw-name-${i}`)),
-        abbr: sanitize(getVal(`sw-abbr-${i}`)),
-        bgColor: cmsData.software?.items?.[i]?.bgColor || '#1A1A2E',
-        textColor: cmsData.software?.items?.[i]?.textColor || '#FFFFFF',
-        badge: sanitize(getVal(`sw-badge-${i}`))
-      });
-      i++;
-    }
-
-    // Social platforms
-    i = 0;
-    while (document.getElementById(`social-platform-${i}`)) {
-      data.social.platforms.push({
-        platform: sanitize(getVal(`social-platform-${i}`)),
-        name: sanitize(getVal(`social-name-${i}`)),
-        url: sanitizeUrl(getVal(`social-url-${i}`))
-      });
-      i++;
-    }
-
-    return data;
-  }
-
-  function getVal(id) {
-    const el = document.getElementById(id);
-    return el ? el.value : '';
-  }
-
-  // ═══════════════════════════════════════
-  // Sanitization (XSS protection)
-  // ═══════════════════════════════════════
-  function sanitize(str) {
-    if (!str) return '';
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function sanitizeUrl(url) {
-    if (!url) return '#';
-    url = url.trim();
-    // Only allow http, https, mailto, tel protocols
-    if (/^(https?:\/\/|mailto:|tel:|#)/i.test(url)) {
-      return url;
-    }
-    // If it looks like a relative path or domain, prepend https
-    if (/^[a-z0-9]/i.test(url) && !url.includes('javascript:')) {
-      return 'https://' + url;
-    }
-    return '#';
-  }
-
-  // ═══════════════════════════════════════
-  // Save / Reset / Add handlers
-  // ═══════════════════════════════════════
-  document.getElementById('admin-save-all').addEventListener('click', () => {
-    cmsData = collectData();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cmsData));
-    showToast('All changes saved successfully');
-  });
-
-  document.getElementById('admin-reset').addEventListener('click', async () => {
-    if (confirm('Reset all content to defaults? This cannot be undone.')) {
-      localStorage.removeItem(STORAGE_KEY);
-      cmsData = await loadDefaults();
-      populateFields();
-      showToast('Reset to defaults');
-    }
-  });
-
-  // Add work category
-  document.getElementById('add-work-category').addEventListener('click', () => {
-    if (!cmsData.work) cmsData.work = { categories: [] };
-    cmsData.work.categories.push({ title: '', description: '' });
-    renderWorkCategories();
-  });
-
-  // Add software
-  document.getElementById('add-software').addEventListener('click', () => {
-    if (!cmsData.software) cmsData.software = { items: [] };
-    cmsData.software.items.push({ name: '', abbr: '', bgColor: '#1A1A2E', textColor: '#FFFFFF', badge: '' });
-    renderSoftware();
-  });
-
-  // Add social platform
-  document.getElementById('add-social').addEventListener('click', () => {
-    if (!cmsData.social) cmsData.social = { platforms: [] };
-    cmsData.social.platforms.push({ platform: 'instagram', name: '', url: '#' });
-    renderSocial();
-  });
-
 })();

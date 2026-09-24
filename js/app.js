@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initNavigation();
   showSection(0);
   updateCounter();
-  loadCMSData();
 
   // ═══════════════════════════════════════
   // 3. Preload Images
@@ -431,11 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         <div class="hero-title-block">
           <h1 class="hero-title">VIDEO<br>EDITOR</h1>
-          <p class="hero-title-sub">VISUAL STORYTELLER</p>
+          <p class="hero-title-sub">BATTLE WITH KEYFRAMES</p>
         </div>
 
         <div class="hero-tagline">
-          <p>I turn raw footage into cinematic stories built to hold attention, communicate clearly, and leave an impact.</p>
+          <p>I turn every frame into a feeling.</p>
         </div>
 
         <div class="hero-meta-right">

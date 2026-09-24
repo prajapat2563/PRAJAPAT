@@ -1,0 +1,41 @@
+/* Center Media — inherits .character-container motion; adds ratio-safe sizing and soft blending */
+.section-slide{background:radial-gradient(120% 90% at 50% 40%,#f1f1f3,var(--bg))}
+.section-slide .character-container.has-media{--cf:.94;
+  --h:min(calc((100vh - 24px)*var(--cf)),calc((100vw - 24px)*.92/var(--ar)));
+  --h:min(calc((100dvh - 24px)*var(--cf)),calc((100vw - 24px)*.92/var(--ar)));
+  height:var(--h);width:calc(var(--h)*var(--ar))}
+@media (min-width:821px){.section-slide[data-index="1"] .character-container.has-media,.section-slide[data-index="2"] .character-container.has-media,.section-slide[data-index="4"] .character-container.has-media{--cf:.88}}
+@media (max-width:820px){.section-slide .character-container.has-media{--cf:.5}}
+.has-media .character-img{width:100%;height:100%;display:block;object-fit:contain;object-position:50% 100%;background:none}
+.has-media[data-fit="cover"] .character-img{object-fit:cover;object-position:50% 20%}
+/* photographic media: soft elliptical feather + the same bottom fade as the characters */
+.has-media[data-bg="feather"] .character-img{
+  -webkit-mask-image:linear-gradient(#000 0 60%,transparent 97%),radial-gradient(closest-side,#000 calc(100% - var(--fe,28)*1%),transparent);
+  mask-image:linear-gradient(#000 0 60%,transparent 97%),radial-gradient(closest-side,#000 calc(100% - var(--fe,28)*1%),transparent);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+/* light-background video/media: multiply dissolves the white into the page */
+.has-media[data-bg="blend"]{mix-blend-mode:multiply}
+.has-media[data-bg="blend"] .character-glow{display:none}
+
+/* admin */
+#media-admin .mh{font-size:.72rem;color:#666;margin:-8px 0 16px;line-height:1.5}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.mc{border:1px solid rgba(0,0,0,.12);padding:14px}
+.mc h3{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.mc button{border:1px solid rgba(0,0,0,.2);background:#fff;padding:7px 12px;font-size:.68rem;letter-spacing:.06em;cursor:pointer}
+.mc button:hover:not(:disabled){background:#111;color:#fff}.mc button:disabled{opacity:.35;cursor:default}
+.mt{display:flex;margin-bottom:10px}.mt button{flex:1;margin-left:-1px}.mt button.on{background:#111;color:#fff}
+.mi{display:flex;gap:12px;align-items:center;min-height:64px;margin-bottom:10px}
+.mi img,.mi span{width:64px;height:64px;object-fit:contain;background:#eee;flex:none}.mi p{font-size:.68rem;color:#555;line-height:1.5;word-break:break-all}
+.mb{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.mo{display:grid;gap:8px}.mo label{display:grid;grid-template-columns:110px 1fr;align-items:center;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#555}
+.mo select{padding:6px;font-size:.75rem;border:1px solid rgba(0,0,0,.2)}
+.software-icon img{width:100%;aspect-ratio:1;object-fit:contain;border-radius:8px;display:block}
+.social-card-icon img{width:1.6rem;height:1.6rem;object-fit:contain;display:block}
+.hire-contact-item{pointer-events:auto;cursor:pointer}
+/* hero glitch: scanlines clipped to the silhouette (+ same bottom fade) */
+.character-container::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;z-index:2;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px);
+  -webkit-mask:var(--gm,none) center/100% 100% no-repeat,linear-gradient(#000 0 60%,transparent 97%);-webkit-mask-composite:source-in;
+  mask:var(--gm,none) center/100% 100% no-repeat,linear-gradient(#000 0 60%,transparent 97%);mask-composite:intersect}
+.character-container.gl::after{opacity:var(--sc,0)}

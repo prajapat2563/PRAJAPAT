@@ -1,127 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRAJAPAT — Admin Panel</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <meta name="robots" content="noindex, nofollow">
-</head>
-<body class="admin-page">
-
-  <!-- Login Screen -->
-  <div id="admin-login" class="admin-login">
-    <h1>Admin Panel</h1>
-    <p style="font-size:0.75rem;color:#555;margin-bottom:20px;letter-spacing:0.1em;">Enter your PIN to continue</p>
-    <input type="password" id="pin-input" placeholder="••••••" maxlength="20" autocomplete="off">
-    <button id="pin-submit" class="admin-save-btn" style="width:100%;">ENTER</button>
-    <p id="pin-error" style="color:#E07020;font-size:0.7rem;margin-top:12px;display:none;">Incorrect PIN</p>
-    <p id="pin-setup" style="font-size:0.65rem;color:#999;margin-top:16px;letter-spacing:0.05em;"></p>
-  </div>
-
-  <!-- Admin Dashboard (hidden until login) -->
-  <div id="admin-dashboard" class="admin-container" style="display:none;">
-    <header class="admin-header">
-      <h1>PRAJAPAT — Admin Panel</h1>
-      <p style="font-size:0.7rem;color:#555;letter-spacing:0.1em;margin-top:8px;">Edit your portfolio content below. Changes are saved to browser storage.</p>
-      <div style="margin-top:16px;display:flex;gap:12px;">
-        <button id="admin-save-all" class="admin-save-btn">SAVE ALL CHANGES</button>
-        <button id="admin-reset" class="admin-save-btn" style="background:#555;">RESET TO DEFAULTS</button>
-        <button id="admin-logout" class="admin-save-btn" style="background:transparent;color:#555;border:1px solid rgba(0,0,0,0.15);">LOGOUT</button>
-      </div>
-    </header>
-
-    <!-- Brand Section -->
-    <div class="admin-section">
-      <h2>Brand</h2>
-      <div class="admin-field">
-        <label for="brand-name">Brand Name</label>
-        <input type="text" id="brand-name" placeholder="PRAJAPAT">
-      </div>
-      <div class="admin-field">
-        <label for="brand-tagline">Brand Tagline</label>
-        <input type="text" id="brand-tagline" placeholder="VIDEO EDITOR / VISUAL STORYTELLER">
-      </div>
-    </div>
-
-    <!-- Hero Section -->
-    <div class="admin-section">
-      <h2>Hero Section</h2>
-      <div class="admin-field">
-        <label for="hero-title">Hero Title</label>
-        <input type="text" id="hero-title" placeholder="VIDEO EDITOR">
-      </div>
-      <div class="admin-field">
-        <label for="hero-subtitle">Hero Subtitle</label>
-        <input type="text" id="hero-subtitle" placeholder="VISUAL STORYTELLER">
-      </div>
-      <div class="admin-field">
-        <label for="hero-tagline">Hero Tagline</label>
-        <textarea id="hero-tagline" placeholder="I turn raw footage into cinematic stories..."></textarea>
-      </div>
-      <div class="admin-field">
-        <label for="hero-meta-role">Meta Role</label>
-        <input type="text" id="hero-meta-role" placeholder="VIDEO EDITOR / VFX">
-      </div>
-      <div class="admin-field">
-        <label for="hero-meta-status">Meta Status</label>
-        <input type="text" id="hero-meta-status" placeholder="AVAILABLE">
-      </div>
-    </div>
-
-    <!-- My Work Section -->
-    <div class="admin-section">
-      <h2>My Work — Categories</h2>
-      <div id="work-categories-container"></div>
-      <button id="add-work-category" class="admin-save-btn" style="margin-top:12px;background:#555;font-size:0.7rem;padding:8px 20px;">+ ADD CATEGORY</button>
-    </div>
-
-    <!-- Experience Section -->
-    <div class="admin-section">
-      <h2>Experience — Statistics</h2>
-      <div id="experience-stats-container"></div>
-    </div>
-
-    <!-- Software Section -->
-    <div class="admin-section">
-      <h2>Software I Use</h2>
-      <div id="software-container"></div>
-      <button id="add-software" class="admin-save-btn" style="margin-top:12px;background:#555;font-size:0.7rem;padding:8px 20px;">+ ADD SOFTWARE</button>
-    </div>
-
-    <!-- Social Media Section -->
-    <div class="admin-section">
-      <h2>Social Media</h2>
-      <p style="font-size:0.65rem;color:#999;margin-bottom:16px;letter-spacing:0.05em;">Supported platforms: Instagram, YouTube, Telegram, Payhip, Facebook, X, LinkedIn, TikTok, Discord, Behance, Dribbble, GitHub, Custom</p>
-      <div id="social-container"></div>
-      <button id="add-social" class="admin-save-btn" style="margin-top:12px;background:#555;font-size:0.7rem;padding:8px 20px;">+ ADD PLATFORM</button>
-    </div>
-
-    <!-- Hire Me Section -->
-    <div class="admin-section">
-      <h2>Hire Me</h2>
-      <div class="admin-field">
-        <label for="hire-cta-primary">Primary CTA Text</label>
-        <input type="text" id="hire-cta-primary" placeholder="START A PROJECT">
-      </div>
-      <div class="admin-field">
-        <label for="hire-cta-secondary">Secondary CTA Text</label>
-        <input type="text" id="hire-cta-secondary" placeholder="LET'S WORK TOGETHER">
-      </div>
-      <div class="admin-field">
-        <label for="hire-email">Email Address</label>
-        <input type="email" id="hire-email" placeholder="your@email.com">
-      </div>
-      <div class="admin-field">
-        <label for="hire-whatsapp">WhatsApp Business Number</label>
-        <input type="tel" id="hire-whatsapp" placeholder="+91 XXXXXXXXXX">
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast notification -->
-  <div id="admin-toast" class="admin-toast"></div>
-
-  <script src="js/admin.js"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Admin</title><link rel="stylesheet" href="css/media.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{font:14px/1.5 'Inter Tight',system-ui,sans-serif;background:#e6e6e8;color:#0d0d0f}
+button{font:inherit;cursor:pointer}#login{max-width:340px;margin:16vh auto;background:#fff;border:2px solid #0d0d0f;border-radius:14px;padding:32px;text-align:center}
+#login h1{font-size:1rem;letter-spacing:.2em;margin-bottom:18px}#login input{width:100%;padding:12px;border:1px solid #bbb;border-radius:8px;margin-bottom:12px;text-align:center}
+#login button,.pri{width:100%;padding:12px;background:#0d0d0f;color:#fff;border:0;border-radius:99px;letter-spacing:.12em}#msg{color:#c2410c;font-size:.75rem;margin-top:10px;min-height:1em}
+#app{display:none;grid-template-columns:220px 1fr;min-height:100vh}nav{background:#0d0d0f;color:#fff;padding:24px 14px;position:sticky;top:0;height:100vh}
+nav b{display:block;letter-spacing:.2em;font-size:.8rem;margin:0 10px 22px}nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#aaa;padding:10px;border-radius:8px}
+nav button.on,nav button:hover{background:#222;color:#fff}nav .out{margin-top:24px;color:#777}
+main{padding:36px;max-width:920px}h2{font-size:1.5rem;letter-spacing:-.02em;margin-bottom:6px}.sub{color:#5d5d63;font-size:.78rem;margin-bottom:22px}
+.f{display:block;margin-bottom:12px}.f span{display:block;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:#5d5d63;margin-bottom:4px}
+.f input,.f textarea,.f select{width:100%;padding:10px 12px;border:1px solid #c9c9cc;border-radius:8px;background:#fff;font:inherit}.f textarea{min-height:64px}
+.row{background:#fff;border:1px solid #d3d3d6;border-radius:12px;padding:16px;margin-bottom:12px}.ctl,.logo,.presets{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.row button,.add,.presets button{padding:7px 14px;border:1px solid #0d0d0f;border-radius:99px;background:#fff;font-size:.72rem}.row button:hover,.add:hover,.presets button:hover{background:#0d0d0f;color:#fff}
+.logo img,.logo i{width:44px;height:44px;object-fit:contain;background:#eee;border-radius:8px}.logo small{color:#777}
+#toast{position:fixed;right:20px;bottom:20px;background:#0d0d0f;color:#fff;padding:10px 18px;border-radius:99px;font-size:.75rem;opacity:0;transition:opacity .3s}#toast.show{opacity:1}
+@media(max-width:760px){#app{grid-template-columns:1fr}nav{position:static;height:auto;display:flex;flex-wrap:wrap}nav b{width:100%}nav button{width:auto}main{padding:20px}}
+</style></head><body>
+<div id="login"><h1>ADMIN</h1><input id="pw" type="password" placeholder="Password" autocomplete="current-password"><button id="go">ENTER</button><p id="msg"></p></div>
+<div id="app"><nav id="tabs"></nav><main><div id="panel"></div><div id="media-admin" class="mediabox" hidden></div></main></div>
+<div id="toast"></div>
+<script src="js/cms.js"></script><script src="js/admin.js"></script><script src="js/media.js"></script>
+</body></html>
