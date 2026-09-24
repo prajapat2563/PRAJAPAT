@@ -30,7 +30,7 @@
     const p = $('#pw').value, s = stored();
     (await hash(p, s.salt)) === s.h ? enter() : ($('#msg').textContent = 'Incorrect password.');
   };
-  $('#pw').onkeydown = e => e.key === 'Enter' && $('#go').click();
+  $('#pw').onkeydown = e => { if (e.key === 'Enter') $('#go').click(); };
   if (sessionStorage.getItem('pj_ok')) enter();
 
   // ── ui helpers ──
