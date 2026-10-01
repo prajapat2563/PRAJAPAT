@@ -40,12 +40,35 @@ a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;b
 @keyframes wR{from{transform:translateX(-50%) translateX(8vw);opacity:0}}
 @keyframes wL{from{transform:translateX(-50%) translateX(-8vw);opacity:0}}
 
-/* word reveal: whole words slide up from a mask, never cut */
-.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
-.w>span{display:inline-block;transform:translateY(115%);transition:transform 1s var(--ease)}
-.section-slide.reveal .w>span{transform:none}
+/* SaaS text motion: words blur-fade + rise with a soft stagger (delays set per word via --d) */
+.w{display:inline-block;vertical-align:top}
+.w>span{display:inline-block;opacity:0;transform:translateY(.55em);filter:blur(8px);
+  transition:opacity .9s ease var(--d,0ms),transform 1.1s var(--ease) var(--d,0ms),filter .9s ease var(--d,0ms),text-decoration-color .9s ease var(--d,0ms)}
+.section-slide.reveal .w>span{opacity:1;transform:none;filter:none}
+.section-slide.reveal .pre .w>span{opacity:0;transform:translateY(.55em);filter:blur(8px);transition:none}
 .section-slide:not(.active) .w>span{transition:none}
 .section-content>*{opacity:1}
+.stat-number{font-variant-numeric:tabular-nums}
+/* underline must live on the word spans (inline-blocks don't inherit it) and fade in with the text */
+.hero-meta-value,.hero-meta-value .w>span{text-decoration-color:transparent}
+.hero-meta-value .w>span{text-decoration-line:underline;text-underline-offset:4px}
+.hero-meta-value{transition:text-decoration-color .9s ease .6s}
+.section-slide.reveal .hero-meta-value,.section-slide.reveal .hero-meta-value .w>span{text-decoration-color:currentColor}
+/* giant background word eases in too */
+.section-slide::before{opacity:0;filter:blur(20px);scale:.96;transition:opacity 1.4s var(--ease) .1s,filter 1.4s var(--ease) .1s,scale 1.6s var(--ease) .1s}
+.section-slide.reveal::before{opacity:1;filter:none;scale:1}
+.section-slide:not(.active)::before{transition:none}
+/* interface text (brand, counter, scroll hint) */
+@keyframes saasIn{from{opacity:0;transform:translateY(.7em);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.topbar-brand,.scroll-hint,.nav-counter{animation:saasIn 1s var(--ease) both}
+.topbar-brand{animation-delay:.15s}.nav-counter{animation-delay:.3s}.scroll-hint{animation-delay:.5s}
+.nav-counter .current{display:inline-block}
+.nav-counter .current.tick{animation:saasIn .7s var(--ease) both}
+@media (prefers-reduced-motion:reduce){
+  .w>span,.section-slide.reveal .pre .w>span{opacity:1;transform:none;filter:none;transition:none}
+  .section-slide::before{opacity:1;filter:none;scale:1;transition:none}
+  .topbar-brand,.scroll-hint,.nav-counter,.nav-counter .current.tick{animation:none}
+}
 
 /* typography */
 .hero-title,.section-title,.stat-number{font-weight:600;text-transform:uppercase;letter-spacing:-.045em;line-height:.92}
