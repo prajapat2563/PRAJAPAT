@@ -5,7 +5,7 @@
   --h:min(calc((100dvh - 24px)*var(--cf)),calc((100vw - 24px)*.92/var(--ar)));
   height:var(--h);width:calc(var(--h)*var(--ar))}
 @media (min-width:821px){.section-slide[data-index="1"] .character-container.has-media,.section-slide[data-index="2"] .character-container.has-media,.section-slide[data-index="4"] .character-container.has-media{--cf:.88}}
-@media (max-width:820px){.section-slide .character-container.has-media{--cf:.5}}
+@media (max-width:820px){.section-slide .character-container.has-media{--cf:.62}}
 .has-media .character-img{width:100%;height:100%;display:block;object-fit:contain;object-position:50% 100%;background:none}
 .has-media[data-fit="cover"] .character-img{object-fit:cover;object-position:50% 20%}
 /* photographic media: soft elliptical feather + the same bottom fade as the characters */
